@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Parking System - ParkVision</title>
+    <title>{{ location_name | default('Smart Parking System') }} - ParkVision</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.0/socket.io.min.js"></script>
@@ -12,9 +12,15 @@
     <!-- Header Navigation -->
     <header class="header">
         <div class="logo">
-            <h1>SMART PARKING SYSTEM</h1>
+            <a href="/" style="text-decoration: none; display: flex; align-items: center; gap: 0.75rem;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2d5a3d" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                <h1>{{ location_name | default('SMART PARKING SYSTEM') }}</h1>
+            </a>
         </div>
         <nav class="nav">
+            <a href="/" class="nav-link">Map</a>
             <a href="#" class="nav-link active">Home</a>
             <a href="#" class="nav-link">Analytics</a>
             <a href="#" class="nav-link">Settings</a>
@@ -64,46 +70,25 @@
         <section class="content-grid">
             <!-- Parking Feeds Section -->
             <div class="feeds-section">
-                <h2 class="section-title">Live Parking Feeds</h2>
+                <h2 class="section-title">{{ location_name | default('Parking') }} - Live Feed</h2>
                 
-                <!-- Camera 1 Feed -->
+                <!-- Single Camera Feed based on location -->
                 <div class="feed-card">
                     <div class="feed-header">
                         <div class="camera-indicator"></div>
-                        <span>Parking Lot 1 - carPark.mp4</span>
+                        <span>{{ location_name | default('Parking Lot') }} -  Video-Feed🔴</span>
                     </div>
                     <div class="video-container">
-                        <img src="/video_feed/1" alt="Camera 1 Feed" class="video-feed" id="video-feed-1">
+                        <img src="/video_feed/{{ camera_id | default(1) }}" alt="Camera Feed" class="video-feed" id="video-feed-{{ camera_id | default(1) }}">
                     </div>
                     <div class="feed-stats">
                         <div class="feed-stat">
                             <span class="label">Free:</span>
-                            <span class="value free" id="camera1-free">0</span>
+                            <span class="value free" id="camera{{ camera_id | default(1) }}-free">0</span>
                         </div>
                         <div class="feed-stat">
                             <span class="label">Occupied:</span>
-                            <span class="value occupied" id="camera1-occupied">0</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Camera 2 Feed -->
-                <div class="feed-card">
-                    <div class="feed-header">
-                        <div class="camera-indicator"></div>
-                        <span>Parking Lot 2 - 2.mp4</span>
-                    </div>
-                    <div class="video-container">
-                        <img src="/video_feed/2" alt="Camera 2 Feed" class="video-feed" id="video-feed-2">
-                    </div>
-                    <div class="feed-stats">
-                        <div class="feed-stat">
-                            <span class="label">Free:</span>
-                            <span class="value free" id="camera2-free">0</span>
-                        </div>
-                        <div class="feed-stat">
-                            <span class="label">Occupied:</span>
-                            <span class="value occupied" id="camera2-occupied">0</span>
+                            <span class="value occupied" id="camera{{ camera_id | default(1) }}-occupied">0</span>
                         </div>
                     </div>
                 </div>
@@ -117,7 +102,7 @@
                         <span>Live Preview</span>
                     </div>
                     <div class="preview-image">
-                        <img src="/video_feed/1" alt="Preview" id="preview-image">
+                        <img src="/video_feed/{{ camera_id | default(1) }}" alt="Preview" id="preview-image">
                     </div>
                 </div>
 
@@ -165,6 +150,10 @@
         <span class="status-text">Connecting...</span>
     </div>
 
+    <script>
+        // Pass camera_id to JavaScript
+        window.CAMERA_ID = Number("{{ camera_id|default(1) }}");
+    </script>
     <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

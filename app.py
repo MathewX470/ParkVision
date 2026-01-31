@@ -242,12 +242,45 @@ def generate_frames(camera_id):
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
         
-        time.sleep(0.033)  # ~30 fps
+        time.sleep(0.033)
 
 
 @app.route('/')
-def index():
-    return render_template('index.html')
+def landing():
+    """Landing page with map to select parking location"""
+    return render_template('landing.html')
+
+
+@app.route('/dashboard')
+def dashboard():
+    """Main dashboard - redirect to landing page"""
+    return render_template('landing.html')
+
+
+@app.route('/dashboard/<location>')
+def dashboard_location(location):
+    """Dashboard for specific parking location"""
+    # Map locations to camera settings
+    location_config = {
+        'imola': {
+            'name': 'Imola Parking',
+            'camera_id': 1,
+            'video_file': 'carPark.mp4'
+        },
+        'monza': {
+            'name': 'Monza Parking',
+            'camera_id': 2,
+            'video_file': '2.mp4'
+        }
+    }
+    
+    config = location_config.get(location, location_config['imola'])
+    
+    return render_template('index.html', 
+                           location=location,
+                           location_name=config['name'],
+                           camera_id=config['camera_id'],
+                           video_file=config['video_file'])
 
 
 @app.route('/api/status')

@@ -69,23 +69,35 @@ class ParkingMonitor {
 
     handleParkingUpdate(data) {
         console.log('Received parking update:', data);
+        
+        // Get the camera ID from the page (set by template)
+        const cameraId = window.CAMERA_ID || 1;
+        const cameraKey = `camera${cameraId}`;
 
         // Handle full status update (from API or initial load)
         if (data.camera1 && data.camera2) {
-            this.updateCameraStats('camera1', data.camera1.free, data.camera1.occupied);
-            this.updateCameraStats('camera2', data.camera2.free, data.camera2.occupied);
+            // Only update the relevant camera for this page
+            const cameraData = data[cameraKey];
+            if (cameraData) {
+                this.updateCameraStats(cameraKey, cameraData.free, cameraData.occupied);
+                // Update totals with only this camera's data
+                this.updateTotalStats({
+                    total_slots: cameraData.total,
+                    free: cameraData.free,
+                    occupied: cameraData.occupied
+                });
+            }
         }
 
         // Handle camera-specific updates
-        if (data.camera_id === 'camera1') {
-            this.updateCameraStats('camera1', data.free, data.occupied);
-        } else if (data.camera_id === 'camera2') {
-            this.updateCameraStats('camera2', data.free, data.occupied);
-        }
-
-        // Update totals
-        if (data.total) {
-            this.updateTotalStats(data.total);
+        if (data.camera_id === cameraKey) {
+            this.updateCameraStats(cameraKey, data.free, data.occupied);
+            // Update totals for single camera
+            this.updateTotalStats({
+                total_slots: data.slots ? Object.keys(data.slots).length : 0,
+                free: data.free,
+                occupied: data.occupied
+            });
         }
 
         // Update timestamp
