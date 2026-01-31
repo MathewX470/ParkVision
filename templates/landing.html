@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ParkVision - Select Parking Location</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-green: #2d5a3d;
+            --light-green: #4a8c5c;
+            --free-green: #22c55e;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-dark: #1a1a1a;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            letter-spacing: 0.5px;
+        }
+
+        .logo-icon {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon svg {
+            width: 40px;
+            height: 40px;
+            color: var(--primary-green);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .page-title h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-title p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Map Container */
+        .map-container {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            min-height: 500px;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            min-height: 500px;
+        }
+
+        /* Location Cards */
+        .locations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .location-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .location-card:hover {
+            border-color: var(--primary-green);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .location-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .location-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-green), var(--light-green));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .location-icon svg {
+            width: 28px;
+            height: 28px;
+            color: white;
+        }
+
+        .location-info h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .location-info p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .location-stats {
+            display: flex;
+            gap: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--free-green);
+        }
+
+        .view-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary-green);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .view-btn:hover {
+            background: var(--light-green);
+        }
+
+        /* Custom Leaflet Popup */
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+            padding: 0;
+        }
+
+        .leaflet-popup-content {
+            margin: 0;
+            min-width: 200px;
+        }
+
+        .popup-content {
+            padding: 1rem;
+        }
+
+        .popup-content h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .popup-content p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .popup-btn {
+            display: block;
+            width: 100%;
+            padding: 0.6rem;
+            background: var(--primary-green);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .popup-btn:hover {
+            background: var(--light-green);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+
+            .page-title h2 {
+                font-size: 1.5rem;
+            }
+
+            .locations-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <path d="M9 17V7h4a3 3 0 0 1 0 6H9"/>
+                </svg>
+                <h1>PARKVISION</h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-title">
+            <h2>Select a Parking Location</h2>
+            <p>Choose a parking lot from the map to view real-time availability</p>
+        </div>
+
+        <!-- Map -->
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+
+        <!-- Location Cards -->
+        <div class="locations-grid">
+            <div class="location-card" onclick="goToParking('imola')">
+                <div class="location-header">
+                    <div class="location-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                    </div>
+                    <div class="location-info">
+                        <h3>Imola Parking</h3>
+                        <p>Via Emilia, Imola, Italy</p>
+                    </div>
+                </div>
+                <div class="location-stats">
+                    <div class="stat">
+                        <span class="stat-label">Camera Feed</span>
+                        <span class="stat-value">Video-Feed-1🔴</span>
+                    </div>
+                </div>
+                <button class="view-btn">
+                    View Live Feed
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="location-card" onclick="goToParking('monza')">
+                <div class="location-header">
+                    <div class="location-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                    </div>
+                    <div class="location-info">
+                        <h3>Monza Parking</h3>
+                        <p>Viale Cesare Battisti, Monza, Italy</p>
+                    </div>
+                </div>
+                <div class="location-stats">
+                    <div class="stat">
+                        <span class="stat-label">Camera Feed</span>
+                        <span class="stat-value">Video-Feed-2🔴</span>
+                    </div>
+                </div>
+                <button class="view-btn">
+                    View Live Feed
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Parking locations
+        const locations = {
+            imola: {
+                name: "Imola Parking",
+                address: "Via Emilia, Imola, Italy",
+                lat: 44.3535,
+                lng: 11.7148,
+                camera: "carPark.mp4"
+            },
+            monza: {
+                name: "Monza Parking",
+                address: "Viale Cesare Battisti, Monza, Italy",
+                lat: 45.5845,
+                lng: 9.2744,
+                camera: "2.mp4"
+            }
+        };
+
+        // Initialize the map centered between both locations
+        const centerLat = (locations.imola.lat + locations.monza.lat) / 2;
+        const centerLng = (locations.imola.lng + locations.monza.lng) / 2;
+        
+        const map = L.map('map').setView([centerLat, centerLng], 7);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Custom marker icon
+        const parkingIcon = L.divIcon({
+            html: `<div style="
+                background: linear-gradient(135deg, #2d5a3d, #4a8c5c);
+                width: 40px;
+                height: 40px;
+                border-radius: 50% 50% 50% 0;
+                transform: rotate(-45deg);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 3px solid white;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            ">
+                <span style="
+                    transform: rotate(45deg);
+                    color: white;
+                    font-weight: bold;
+                    font-size: 18px;
+                ">P</span>
+            </div>`,
+            iconSize: [40, 40],
+            iconAnchor: [20, 40],
+            popupAnchor: [0, -40],
+            className: 'custom-parking-marker'
+        });
+
+        // Add markers for each location
+        Object.keys(locations).forEach(key => {
+            const loc = locations[key];
+            const marker = L.marker([loc.lat, loc.lng], { icon: parkingIcon }).addTo(map);
+            
+            const popupContent = `
+                <div class="popup-content">
+                    <h4>${loc.name}</h4>
+                    <p>${loc.address}</p>
+                    <a href="/dashboard/${key}" class="popup-btn">View Live Feed</a>
+                </div>
+            `;
+            
+            marker.bindPopup(popupContent);
+        });
+
+        // Fit map to show both markers
+        const bounds = L.latLngBounds([
+            [locations.imola.lat, locations.imola.lng],
+            [locations.monza.lat, locations.monza.lng]
+        ]);
+        map.fitBounds(bounds.pad(0.3));
+
+        // Navigate to parking dashboard
+        function goToParking(location) {
+            window.location.href = `/dashboard/${location}`;
+        }
+    </script>
+</body>
+</html>

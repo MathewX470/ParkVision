@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ location_name | default('Smart Parking System') }} - ParkVision</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.0/socket.io.min.js"></script>
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="logo">
+            <a href="/" style="text-decoration: none; display: flex; align-items: center; gap: 0.75rem;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2d5a3d" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                <h1>{{ location_name | default('SMART PARKING SYSTEM') }}</h1>
+            </a>
+        </div>
+        <nav class="nav">
+            <a href="/" class="nav-link">Map</a>
+            <a href="#" class="nav-link active">Home</a>
+            <a href="#" class="nav-link">Analytics</a>
+            <a href="#" class="nav-link">Settings</a>
+            <a href="#" class="nav-link">Help</a>
+            <button class="search-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Stats Cards -->
+        <section class="stats-section">
+            <div class="stat-card">
+                <span class="stat-label">TOTAL SLOTS</span>
+                <span class="stat-value" id="total-slots">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">FREE SLOTS</span>
+                <span class="stat-value free" id="free-slots">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">OCCUPIED SLOTS</span>
+                <span class="stat-value" id="occupied-slots">0</span>
+            </div>
+            <div class="stat-icons">
+                <div class="icon-item">
+                    <svg class="umbrella-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2d5a3d" stroke-width="2">
+                        <path d="M12 2v1M12 22v-6M4 12a8 8 0 0 1 16 0Z"></path>
+                    </svg>
+                    <span>%</span>
+                </div>
+                <div class="icon-item">
+                    <svg class="umbrella-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2d5a3d" stroke-width="2">
+                        <path d="M12 2v1M12 22v-6M4 12a8 8 0 0 1 16 0Z"></path>
+                    </svg>
+                    <span>$</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Grid -->
+        <section class="content-grid">
+            <!-- Parking Feeds Section -->
+            <div class="feeds-section">
+                <h2 class="section-title">{{ location_name | default('Parking') }} - Live Feed</h2>
+                
+                <!-- Single Camera Feed based on location -->
+                <div class="feed-card">
+                    <div class="feed-header">
+                        <div class="camera-indicator"></div>
+                        <span>{{ location_name | default('Parking Lot') }} -  Video-Feed🔴</span>
+                    </div>
+                    <div class="video-container">
+                        <img src="/video_feed/{{ camera_id | default(1) }}" alt="Camera Feed" class="video-feed" id="video-feed-{{ camera_id | default(1) }}">
+                    </div>
+                    <div class="feed-stats">
+                        <div class="feed-stat">
+                            <span class="label">Free:</span>
+                            <span class="value free" id="camera{{ camera_id | default(1) }}-free">0</span>
+                        </div>
+                        <div class="feed-stat">
+                            <span class="label">Occupied:</span>
+                            <span class="value occupied" id="camera{{ camera_id | default(1) }}-occupied">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slot Details Panel -->
+            <div class="details-panel">
+                <div class="panel-card video-preview">
+                    <div class="preview-header">
+                        <div class="status-dot"></div>
+                        <span>Live Preview</span>
+                    </div>
+                    <div class="preview-image">
+                        <img src="/video_feed/{{ camera_id | default(1) }}" alt="Preview" id="preview-image">
+                    </div>
+                </div>
+
+                <div class="panel-card slot-info">
+                    <h3 class="slot-title" id="slot-title">Slot Overview</h3>
+                    <div class="info-row">
+                        <span class="info-label">Status</span>
+                        <span class="info-value" id="slot-status">Monitoring</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Type</span>
+                        <span class="info-value" id="slot-type">All Vehicles</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Last Update</span>
+                        <span class="info-value" id="last-update">--:-- --</span>
+                    </div>
+                </div>
+
+                <div class="panel-card availability-notice">
+                    <p class="notice-text">
+                        <span id="available-count">0</span> slots available
+                    </p>
+                    <p class="notice-subtext">Real-time monitoring active</p>
+                </div>
+
+                <!-- Legend -->
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color free"></div>
+                        <span>Free</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color occupied"></div>
+                        <span>Occupied</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Connection Status -->
+    <div class="connection-status" id="connection-status">
+        <span class="status-indicator disconnected"></span>
+        <span class="status-text">Connecting...</span>
+    </div>
+
+    <script>
+        // Pass camera_id to JavaScript
+        window.CAMERA_ID = Number("{{ camera_id|default(1) }}");
+    </script>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

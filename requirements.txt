@@ -2,3 +2,6 @@ opencv-python
 numpy
 fastapi
 uvicorn
+flask
+flask-socketio
+eventlet
