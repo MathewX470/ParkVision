@@ -174,6 +174,50 @@ You can tune the detection sensitivity by modifying these parameters in `parking
 - **FastAPI** - REST API framework
 - **Flask-SocketIO** - Real-time WebSocket support (optional)
 
+## 🚀 Future Enhancements
+
+- [ ] **Vehicle Size Detection** - Classify vehicles as compact, sedan, SUV, or truck
+- [ ] **Smart Slot Recommendations** - Suggest optimal parking spots based on vehicle size
+- [ ] **License Plate Recognition** - Identify and track vehicles by license plate
+- [ ] **Parking Duration Tracking** - Monitor how long vehicles have been parked
+- [ ] **Mobile App Integration** - iOS/Android app for real-time parking availability
+- [ ] **Payment System Integration** - Automated billing based on parking duration
+- [ ] **Multi-camera Support** - Seamless stitching of multiple camera feeds
+- [ ] **Historical Analytics** - Track parking patterns and peak hours
+- [ ] **Reservation System** - Allow users to reserve parking spots in advance
+- [ ] **Accessibility Features** - Highlight handicap-accessible spots
+
+## 👥 Contributors
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/MathewX470">
+        <img src="https://github.com/MathewX470.png" width="100px;" alt="MathewX470"/><br />
+        <sub><b>Mathew Punnen Chandy</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/vishak45">
+        <img src="https://github.com/vishak45.png" width="100px;" alt="Vishak R"/><br />
+        <sub><b>Vishak R</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/johan-r8">
+        <img src="https://github.com/johan-r8.png" width="100px;" alt="Johan Thomas Roby"/><br />
+        <sub><b>Johan Thomas Roby</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/ash-ftw">
+        <img src="https://github.com/ash-ftw.png" width="100px;" alt="Ashish Jacob"/><br />
+        <sub><b>Ashish Jacob</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
+
 ## 🤝 Contributing
 
 Contributions are welcome! Feel free to:
