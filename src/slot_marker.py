@@ -1,6 +1,12 @@
 import cv2
 import json
 import numpy as np
+import os
+
+# Get the project root directory
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CONFIG_FILE = os.path.join(ROOT_DIR, "config", "parking_slots.json")
+VIDEO_FILE = os.path.join(ROOT_DIR, "videos", "carPark.mp4")
 
 slots = {}
 slot_id = 1
@@ -13,7 +19,7 @@ offset_y = 35  # Default vertical offset (adjust with arrow keys)
 
 # Load existing slots if file exists
 try:
-    with open("parking_slots.json", "r") as f:
+    with open(CONFIG_FILE, "r") as f:
         existing = json.load(f)
         slots = {k: [tuple(pt) for pt in v] for k, v in existing.items()}
         if slots:
@@ -141,11 +147,11 @@ while True:
         break
     
     elif key == ord('p') or key == ord('P'):  # Save and exit
-        with open("parking_slots.json", "w") as f:
+        with open(CONFIG_FILE, "w") as f:
             # Convert tuples to lists for JSON
             json_slots = {k: [list(pt) for pt in v] for k, v in slots.items()}
             json.dump(json_slots, f, indent=4)
-        print(f"\n✅ Saved {len(slots)} slots to parking_slots.json")
+        print(f"\n✅ Saved {len(slots)} slots to {CONFIG_FILE}")
         break
     
     elif key == ord('f') or key == ord('F'):  # Duplicate

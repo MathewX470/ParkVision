@@ -13,16 +13,29 @@ A computer vision-based smart parking lot monitoring system that detects and tra
 - **Edge & Pixel Analysis** - Uses Canny edge detection and color variance to determine occupancy
 - **REST API** - FastAPI endpoint to query parking status programmatically
 - **Live Statistics** - Displays real-time count of free and occupied slots
+- **Web Dashboard** - Real-time web interface with Flask & SocketIO
 
 ## 📁 Project Structure
 
 ```
 ParkVision/
-├── parking_analyzer.py    # Main detection script - analyzes video for occupancy
-├── slot_marker.py         # Interactive tool to mark parking slot boundaries
-├── api.py                 # FastAPI REST endpoint for parking status
-├── parking_slots.json     # Stored parking slot coordinates
-├── requirements.txt       # Python dependencies
+├── src/                       # Core Python scripts
+│   ├── parking_analyzer.py    # Main detection script
+│   ├── slot_marker.py         # Interactive slot marking tool
+│   └── api.py                 # FastAPI REST endpoint
+├── config/                    # Configuration files
+│   ├── parking_slots.json     # Slot coordinates (camera 1)
+│   └── parking_slots2.json    # Slot coordinates (camera 2)
+├── videos/                    # Video files (not tracked in git)
+│   ├── carPark.mp4
+│   └── 2.mp4
+├── web/                       # Flask web application
+│   ├── app.py                 # Main Flask app with SocketIO
+│   ├── static/                # CSS and JavaScript
+│   └── templates/             # HTML templates
+├── screenshots/               # Project screenshots
+├── requirements.txt           # Python dependencies
+├── LICENSE                    # MIT License
 └── README.md
 ```
 
@@ -64,7 +77,7 @@ ParkVision/
 Before analyzing a video, you need to define the parking slot boundaries:
 
 ```bash
-python slot_marker.py
+python src/slot_marker.py
 ```
 
 **Controls:**
@@ -77,26 +90,36 @@ python slot_marker.py
 | **U** | Undo last slot |
 | **P** | Save and exit |
 
-The slot coordinates are saved to `parking_slots.json`.
+The slot coordinates are saved to `config/parking_slots.json`.
 
 ### Step 2: Run the Parking Analyzer
 
 Analyze a parking lot video to detect occupancy:
 
 ```bash
-python parking_analyzer.py
+python src/parking_analyzer.py
 ```
 
 - **Green slots** = Free 🟢
 - **Red slots** = Occupied 🔴
 - Press **ESC** to exit
 
-### Step 3: Query via API (Optional)
+### Step 3: Run the Web Dashboard
+
+Start the Flask web server with real-time updates:
+
+```bash
+python web/app.py
+```
+
+Access the dashboard at: `http://localhost:5000`
+
+### Step 4: Query via API (Optional)
 
 Start the FastAPI server to get parking status via REST:
 
 ```bash
-uvicorn api:app --reload
+uvicorn src.api:app --reload
 ```
 
 Access the API at: `http://localhost:8000/parking/status`

@@ -1,13 +1,17 @@
 import cv2
 import json
 import numpy as np
+import os
+
+# Get the project root directory
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Load parking slots and convert to tuples
-with open("parking_slots.json") as f:
+with open(os.path.join(ROOT_DIR, "config", "parking_slots.json")) as f:
     parking_slots_data = json.load(f)
     parking_slots = {k: [tuple(pt) for pt in v] for k, v in parking_slots_data.items()}
 
-cap = cv2.VideoCapture("carPark.mp4")
+cap = cv2.VideoCapture(os.path.join(ROOT_DIR, "videos", "carPark.mp4"))
 
 
 def is_occupied_by_pixels(frame, slot_points, edge_threshold=8, std_threshold=35):

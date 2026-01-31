@@ -3,19 +3,25 @@ import json
 import numpy as np
 import threading
 import time
+import os
 from flask import Flask, render_template, Response, jsonify
 from flask_socketio import SocketIO, emit
+
+# Get the project root directory
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CONFIG_DIR = os.path.join(ROOT_DIR, "config")
+VIDEOS_DIR = os.path.join(ROOT_DIR, "videos")
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'parkvision_secret!'
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
 # Load parking slots for both cameras
-with open("parking_slots.json") as f:
+with open(os.path.join(CONFIG_DIR, "parking_slots.json")) as f:
     parking_slots_data1 = json.load(f)
     parking_slots1 = {k: [tuple(pt) for pt in v] for k, v in parking_slots_data1.items()}
 
-with open("parking_slots2.json") as f:
+with open(os.path.join(CONFIG_DIR, "parking_slots2.json")) as f:
     parking_slots_data2 = json.load(f)
     parking_slots2_raw = {k: [tuple(pt) for pt in v] for k, v in parking_slots_data2.items()}
 
@@ -364,8 +370,8 @@ if __name__ == '__main__':
     print("=" * 50)
     
     # Start video processors (daemon threads will stop when main exits)
-    video_processor1 = VideoProcessor("carPark.mp4", parking_slots1, "camera1", socketio)
-    video_processor2 = VideoProcessor("2.mp4", parking_slots2, "camera2", socketio)
+    video_processor1 = VideoProcessor(os.path.join(VIDEOS_DIR, "carPark.mp4"), parking_slots1, "camera1", socketio)
+    video_processor2 = VideoProcessor(os.path.join(VIDEOS_DIR, "2.mp4"), parking_slots2, "camera2", socketio)
     
     video_processor1.start()
     video_processor2.start()
