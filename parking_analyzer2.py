@@ -1,7 +1,6 @@
 import cv2
 import json
 import numpy as np
-from shapely.geometry import Polygon
 
 # Load parking slots and convert to tuples
 with open("parking_slots2.json") as f:
